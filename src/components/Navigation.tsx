@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LogOut, Home, Upload } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/components/integrationssupabase/client";
 
 export const Navigation = () => {
   const navigate = useNavigate();
@@ -33,7 +34,10 @@ export const Navigation = () => {
     };
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Sign out from Supabase
+    await supabase.auth.signOut();
+    // Clear localStorage
     localStorage.removeItem("adminAuthenticated");
     setIsAuthenticated(false);
     toast.success("Logged out successfully");

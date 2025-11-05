@@ -79,86 +79,93 @@ Message: ${message}
       <WallpaperGallery />
 
       {/* --- Aloqa (Contact) Bo'limi Boshlanishi --- */}
-      <section id="contact" className="py-20 bg-secondary">
-        <div className="container mx-auto px-4 max-w-3xl">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">
-              Biz Bilan Bog'laning
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-              Savolingiz bormi yoki maxsus loyiha haqida gaplashmoqchimisiz? Sizdan xabar kutamiz.
-            </p>
-          </div>
-          
-          {submitSuccess && (
-            <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-md">
-              Xabar muvaffaqiyatli yuborildi! Tez orada siz bilan bog'lanamiz.
-            </div>
-          )}
+<section id="contact" className="py-16 md:py-20 bg-secondary">
+  <div className="container mx-auto px-4 max-w-3xl">
+    <div className="text-center mb-10 md:mb-12">
+      <h2 className="text-3xl md:text-4xl font-bold mb-3 md:mb-4">
+        Biz Bilan Bog'laning
+      </h2>
+      <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto px-2">
+        Savolingiz bormi yoki maxsus loyiha haqida gaplashmoqchimisiz? Sizdan xabar kutamiz.
+      </p>
+    </div>
 
-          {submitError && (
-            <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-md">
-              {submitError}
-            </div>
-          )}
-          
-          {/* Bu oddiy HTML forma. 
-            Ma'lumotlarni qabul qilish uchun siz server (backend) 
-            yoki Formspree, Getform kabi xizmatlardan foydalanishingiz kerak bo'ladi.
-            Hozircha `onSubmit` sahifani yangilamasligi uchun qo'shildi.
-          */}
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="name">To'liq Ismingiz</Label>
-                <Input 
-                  id="name" 
-                  placeholder="Abdulla Avloniy" 
-                  type="text" 
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefon Raqamingiz</Label>
-                <Input 
-                  id="phone" 
-                  placeholder="901234567" 
-                  type="tel" 
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  pattern="+998\\d{9}"
-                  maxLength={13}
-                  title="Telefon raqam +998 va 9 xonali son ko'rinishida bo'lishi kerak, masalan: +998901234567"
-                  required
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="message">Xabar</Label>
-              <Textarea 
-                id="message" 
-                placeholder="Sizning xabaringiz..." 
-                rows={5} 
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                required
-              />
-            </div>
-            <div className="text-center">
-              <Button 
-                type="submit" 
-                size="lg" 
-                className="bg-accent text-accent-foreground hover:bg-accent/90"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Yuborilmoqda..." : "Xabarni Yuborish"}
-              </Button>
-            </div>
-          </form>
+    {submitSuccess && (
+      <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg text-center shadow-sm mx-2">
+        Xabar muvaffaqiyatli yuborildi! Tez orada siz bilan bog'lanamiz.
+      </div>
+    )}
+
+    {submitError && (
+      <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg text-center shadow-sm mx-2">
+        {submitError}
+      </div>
+    )}
+
+    <form className="space-y-6" onSubmit={handleSubmit}>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="name" className="block text-sm font-medium">
+            To'liq Ismingiz
+          </Label>
+          <Input
+            id="name"
+            placeholder="Abdulla Avloniy"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition"
+          />
         </div>
-      </section>
+        <div className="space-y-2">
+          <Label htmlFor="phone" className="block text-sm font-medium">
+            Telefon Raqamingiz
+          </Label>
+          <Input
+            id="phone"
+            placeholder="+998901234567"
+            type="tel"
+            inputMode="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            pattern="^\+998\d{9}$"
+            maxLength={13}
+            title="Telefon raqam +998 va 9 xonali son ko'rinishida bo'lishi kerak, masalan: +998901234567"
+            required
+            className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="message" className="block text-sm font-medium">
+          Xabar
+        </Label>
+        <Textarea
+          id="message"
+          placeholder="Sizning xabaringiz..."
+          rows={5}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          required
+          className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition"
+        />
+      </div>
+
+      <div className="text-center mt-4">
+        <Button
+          type="submit"
+          size="lg"
+          disabled={isSubmitting}
+          className="px-8 py-3 bg-accent text-accent-foreground font-medium rounded-lg hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 transition shadow-md hover:shadow-lg disabled:opacity-70"
+        >
+          {isSubmitting ? "Yuborilmoqda..." : "Xabarni Yuborish"}
+        </Button>
+      </div>
+    </form>
+  </div>
+</section>
       {/* --- Aloqa (Contact) Bo'limi Tugashi --- */}
       
       {/* Footer */}

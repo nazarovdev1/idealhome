@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Home } from "lucide-react";
+import { supabase } from "@/components/integrationssupabase/client";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -13,21 +14,67 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    if (username === "admin" && password === "asd123") {
-      localStorage.setItem("adminAuthenticated", "true");
-      // Dispatch a custom event to notify other components
-      window.dispatchEvent(new Event("storage"));
-      toast.success("Welcome back!");
-      navigate("/admin");
-    } else {
-      toast.error("Invalid username or password");
-    }
+    try {
+      // Simple admin check
+      if (username === "admin" && password === "asd123") {
+        // Create a demo email for Supabase auth
+        const adminEmail = "admin@idealhome.local";
+        const adminPassword = "asd123secure";
 
-    setLoading(false);
+        // Try to sign in with Supabase
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: adminEmail,
+          password: adminPassword,
+        });
+
+        // If user doesn't exist, create it
+        if (error && error.message.includes("Invalid login credentials")) {
+          const { error: signUpError } = await supabase.auth.signUp({
+            email: adminEmail,
+            password: adminPassword,
+            options: {
+              data: {
+                role: "admin",
+              },
+            },
+          });
+
+          if (signUpError) {
+            throw signUpError;
+          }
+
+          // Sign in after signup
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: adminEmail,
+            password: adminPassword,
+          });
+
+          if (signInError) {
+            throw signInError;
+          }
+        } else if (error) {
+          throw error;
+        }
+
+        // Store admin session in localStorage
+        localStorage.setItem("adminAuthenticated", "true");
+        // Dispatch a custom event to notify other components
+        window.dispatchEvent(new Event("storage"));
+        toast.success("Welcome back!");
+        navigate("/admin");
+      } else {
+        toast.error("Invalid username or password");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error(error instanceof Error ? error.message : "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

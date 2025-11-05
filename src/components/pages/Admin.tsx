@@ -26,17 +26,30 @@ const Admin = () => {
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
-    // Check admin authentication from localStorage
-    const adminAuth = localStorage.getItem("adminAuthenticated");
-    if (adminAuth === "true") {
-      setIsAuthenticated(true);
-      fetchWallpapers();
-    } else {
-      navigate("/auth");
-    }
+    // Check both localStorage and Supabase session
+    const checkAuth = async () => {
+      const adminAuth = localStorage.getItem("adminAuthenticated");
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (adminAuth === "true" && session) {
+        setIsAuthenticated(true);
+        fetchWallpapers();
+      } else if (adminAuth === "true" && !session) {
+        // Has localStorage but no Supabase session - clear and redirect
+        localStorage.removeItem("adminAuthenticated");
+        navigate("/auth");
+      } else {
+        navigate("/auth");
+      }
+    };
+
+    checkAuth();
   }, [navigate]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Sign out from Supabase
+    await supabase.auth.signOut();
+    // Clear localStorage
     localStorage.removeItem("adminAuthenticated");
     // Dispatch a custom event to notify other components
     window.dispatchEvent(new Event("storage"));
