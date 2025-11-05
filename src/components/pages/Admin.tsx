@@ -134,23 +134,25 @@ const Admin = () => {
   };
 
   if (!isAuthenticated) {
-    return <div className="min-h-screen flex items-center justify-center">
-      <Loader2 className="w-8 h-8 animate-spin text-accent" />
-    </div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-hero-gradient py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-[hsl(var(--hero-gradient-start))] to-[hsl(var(--hero-gradient-end))] py-8 sm:py-12 px-4">
       <div className="container mx-auto max-w-6xl">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             Admin Dashboard
           </h1>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button
               variant="outline"
               onClick={handleLogout}
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
             >
               <LogOut className="w-4 h-4" />
               Logout
@@ -158,7 +160,7 @@ const Admin = () => {
             <Button
               variant="outline"
               onClick={() => navigate("/")}
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
             >
               <Home className="w-4 h-4" />
               Back to Home
@@ -166,11 +168,11 @@ const Admin = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          <Card className="shadow-elegant">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 mb-8 sm:mb-12">
+          <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Upload className="w-5 h-5 text-accent" />
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                <Upload className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
                 Upload New Wallpaper
               </CardTitle>
               <CardDescription>
@@ -230,38 +232,38 @@ const Admin = () => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-elegant">
+          <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle>Quick Stats</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">Quick Stats</CardTitle>
               <CardDescription>Your collection overview</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="p-6 bg-secondary rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-2">Total Wallpapers</p>
-                  <p className="text-4xl font-bold text-accent">{wallpapers.length}</p>
+              <div className="space-y-3 sm:space-y-4">
+                <div className="p-4 sm:p-6 bg-secondary rounded-lg">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1 sm:mb-2">Total Wallpapers</p>
+                  <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent">{wallpapers.length}</p>
                 </div>
-                <div className="p-6 bg-secondary rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-2">Logged in as</p>
-                  <p className="text-lg font-medium truncate">admin</p>
+                <div className="p-4 sm:p-6 bg-secondary rounded-lg">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1 sm:mb-2">Logged in as</p>
+                  <p className="text-sm sm:text-lg font-medium truncate">admin</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <Card className="shadow-elegant">
+        <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle>Manage Wallpapers</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">Manage Wallpapers</CardTitle>
             <CardDescription>View and manage your uploaded designs</CardDescription>
           </CardHeader>
           <CardContent>
             {wallpapers.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
+              <p className="text-center text-muted-foreground py-6 sm:py-8 text-sm sm:text-base">
                 No wallpapers yet. Upload your first design above!
               </p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {wallpapers.map((wallpaper) => (
                   <div key={wallpaper.id} className="group relative overflow-hidden rounded-lg border border-border">
                     <img
@@ -269,18 +271,25 @@ const Admin = () => {
                       alt={wallpaper.title}
                       className="w-full aspect-[4/3] object-cover"
                     />
-                    <div className="p-4">
-                      <h3 className="font-semibold mb-1">{wallpaper.title}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
+                    <div className="p-3 sm:p-4">
+                      <h3 className="font-semibold mb-1 text-sm sm:text-base">{wallpaper.title}</h3>
+                      <p 
+                        className="text-xs sm:text-sm text-muted-foreground overflow-hidden mb-2 sm:mb-3" 
+                        style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical'
+                        }}
+                      >
                         {wallpaper.description}
                       </p>
                       <Button
                         variant="destructive"
                         size="sm"
-                        className="w-full mt-3 gap-2"
+                        className="w-full gap-2 text-xs sm:text-sm"
                         onClick={() => handleDelete(wallpaper.id, wallpaper.image_url)}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                         Delete
                       </Button>
                     </div>
