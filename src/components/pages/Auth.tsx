@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/components/integrationssupabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,56 +9,25 @@ import { Home } from "lucide-react";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate("/admin");
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        navigate("/admin");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-          },
-        });
-        if (error) throw error;
-        toast.success("Account created! You can now sign in.");
-        setIsSignUp(false);
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
-        toast.success("Welcome back!");
-      }
-    } catch (error: any) {
-      toast.error(error.message || "Authentication failed");
-    } finally {
-      setLoading(false);
+    if (username === "admin" && password === "asd123") {
+      localStorage.setItem("adminAuthenticated", "true");
+      // Dispatch a custom event to notify other components
+      window.dispatchEvent(new Event("storage"));
+      toast.success("Welcome back!");
+      navigate("/admin");
+    } else {
+      toast.error("Invalid username or password");
     }
+
+    setLoading(false);
   };
 
   return (
@@ -78,22 +46,22 @@ const Auth = () => {
       <Card className="w-full max-w-md shadow-elegant animate-scale-in">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            IdealHome Admin
+            Admin Login
           </CardTitle>
           <CardDescription>
-            {isSignUp ? "Create your admin account" : "Sign in to manage wallpapers"}
+            Sign in to manage wallpapers
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleAuth} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="admin@idealhome.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="text"
+                placeholder="admin"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
@@ -113,20 +81,9 @@ const Auth = () => {
               className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
               disabled={loading}
             >
-              {loading ? "Processing..." : isSignUp ? "Sign Up" : "Sign In"}
+              {loading ? "Processing..." : "Sign In"}
             </Button>
           </form>
-
-          <div className="mt-4 text-center text-sm">
-            <button
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-accent hover:underline"
-            >
-              {isSignUp
-                ? "Already have an account? Sign in"
-                : "Need an account? Sign up"}
-            </button>
-          </div>
         </CardContent>
       </Card>
     </div>

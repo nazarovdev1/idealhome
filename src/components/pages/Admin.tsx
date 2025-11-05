@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, Upload, Trash2, Home } from "lucide-react";
+import { Loader2, Upload, Trash2, Home, LogOut } from "lucide-react";
 
 interface Wallpaper {
   id: string;
@@ -18,7 +18,7 @@ interface Wallpaper {
 
 const Admin = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(false);
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
   const [title, setTitle] = useState("");
@@ -26,25 +26,23 @@ const Admin = () => {
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        navigate("/auth");
-      } else {
-        setUser(session.user);
-        fetchWallpapers();
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        navigate("/auth");
-      } else {
-        setUser(session.user);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    // Check admin authentication from localStorage
+    const adminAuth = localStorage.getItem("adminAuthenticated");
+    if (adminAuth === "true") {
+      setIsAuthenticated(true);
+      fetchWallpapers();
+    } else {
+      navigate("/auth");
+    }
   }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminAuthenticated");
+    // Dispatch a custom event to notify other components
+    window.dispatchEvent(new Event("storage"));
+    toast.success("Logged out successfully");
+    navigate("/auth");
+  };
 
   const fetchWallpapers = async () => {
     const { data } = await supabase
@@ -95,8 +93,8 @@ const Admin = () => {
       setDescription("");
       setFile(null);
       fetchWallpapers();
-    } catch (error: any) {
-      toast.error(error.message || "Upload failed");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Upload failed");
     } finally {
       setLoading(false);
     }
@@ -117,12 +115,12 @@ const Admin = () => {
       if (error) throw error;
       toast.success("Wallpaper deleted");
       fetchWallpapers();
-    } catch (error: any) {
-      toast.error(error.message || "Delete failed");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Delete failed");
     }
   };
 
-  if (!user) {
+  if (!isAuthenticated) {
     return <div className="min-h-screen flex items-center justify-center">
       <Loader2 className="w-8 h-8 animate-spin text-accent" />
     </div>;
@@ -135,14 +133,24 @@ const Admin = () => {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             Admin Dashboard
           </h1>
-          <Button
-            variant="outline"
-            onClick={() => navigate("/")}
-            className="gap-2"
-          >
-            <Home className="w-4 h-4" />
-            Back to Home
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleLogout}
+              className="gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/")}
+              className="gap-2"
+            >
+              <Home className="w-4 h-4" />
+              Back to Home
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
@@ -222,7 +230,7 @@ const Admin = () => {
                 </div>
                 <div className="p-6 bg-secondary rounded-lg">
                   <p className="text-sm text-muted-foreground mb-2">Logged in as</p>
-                  <p className="text-lg font-medium truncate">{user.email}</p>
+                  <p className="text-lg font-medium truncate">admin</p>
                 </div>
               </div>
             </CardContent>

@@ -1,22 +1,25 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/components/integrationssupabase/client";
 import { LogOut, Home, Upload } from "lucide-react";
+import { toast } from "sonner";
 
 export const Navigation = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
+    // Check admin authentication from localStorage
+    const checkAuth = () => {
+      const adminAuth = localStorage.getItem("adminAuthenticated");
+      setIsAuthenticated(adminAuth === "true");
+    };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
+    checkAuth();
+
+    // Listen for storage changes (e.g., logout from another tab)
+    window.addEventListener("storage", checkAuth);
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -25,13 +28,15 @@ export const Navigation = () => {
     window.addEventListener("scroll", handleScroll);
 
     return () => {
-      subscription.unsubscribe();
+      window.removeEventListener("storage", checkAuth);
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
+    localStorage.removeItem("adminAuthenticated");
+    setIsAuthenticated(false);
+    toast.success("Logged out successfully");
     navigate("/");
   };
 
@@ -53,7 +58,7 @@ export const Navigation = () => {
           </a>
 
           <div className="flex items-center gap-4">
-            {user ? (
+            {isAuthenticated ? (
               <>
                 <Button
                   onClick={() => navigate("/admin")}
