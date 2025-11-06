@@ -75,7 +75,7 @@ const Admin = () => {
     localStorage.removeItem("adminAuthenticated");
     // Dispatch a custom event to notify other components
     window.dispatchEvent(new Event("storage"));
-    toast.success("Logged out successfully");
+    toast.success("Muvaffaqiyatli chiqish!");
     navigate("/auth");
   };
 
@@ -91,34 +91,124 @@ const Admin = () => {
   };
 
   /**
+   * Convert image file to horizontal JPEG format (16:9 aspect ratio) using Canvas API
+   */
+  const convertToJpeg = (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      img.onload = () => {
+        // Target aspect ratio for horizontal (16:9)
+        const targetAspectRatio = 16 / 9;
+        
+        let canvasWidth = img.width;
+        let canvasHeight = img.height;
+        const currentAspectRatio = img.width / img.height;
+
+        // If image is already horizontal (wider than 16:9), just use original dimensions
+        if (currentAspectRatio >= targetAspectRatio) {
+          canvasWidth = img.width;
+          canvasHeight = img.height;
+        } else {
+          // If image is vertical or square, make it horizontal by cropping
+          canvasWidth = img.height * targetAspectRatio;
+          canvasHeight = img.height;
+          
+          // If calculated width is larger than original width, adjust height instead
+          if (canvasWidth > img.width) {
+            canvasWidth = img.width;
+            canvasHeight = img.width / targetAspectRatio;
+          }
+        }
+
+        // Set canvas dimensions
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+
+        // Calculate source crop position to center the image
+        let sourceX = 0;
+        let sourceY = 0;
+        let sourceWidth = img.width;
+        let sourceHeight = img.height;
+
+        // If we need to crop, center the crop area
+        if (currentAspectRatio > targetAspectRatio) {
+          // Image is wider than target - crop horizontally
+          sourceWidth = img.height * targetAspectRatio;
+          sourceX = (img.width - sourceWidth) / 2;
+        } else if (currentAspectRatio < targetAspectRatio) {
+          // Image is taller than target - crop vertically
+          sourceHeight = img.width / targetAspectRatio;
+          sourceY = (img.height - sourceHeight) / 2;
+        }
+
+        // Fill canvas with white background first (in case of transparent images)
+        ctx!.fillStyle = '#FFFFFF';
+        ctx!.fillRect(0, 0, canvasWidth, canvasHeight);
+
+        // Draw the cropped image to fit the 16:9 aspect ratio
+        ctx!.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, canvasWidth, canvasHeight);
+
+        // Convert to JPEG with quality (0.9 = 90% quality)
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error('Failed to convert image to JPEG'));
+            }
+          },
+          'image/jpeg',
+          0.9
+        );
+      };
+
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  /**
    * A function to handle the upload of a new wallpaper.
-   * It checks if the file is valid, and if so, it uploads the file
-   * to Supabase Storage and then inserts a new record into the
+   * It checks if the file is valid, converts it to JPEG format,
+   * and uploads the file to Supabase Storage and then inserts a new record into the
    * wallpapers table with the title, description and image_url.
    */
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
-      toast.error("Please select an image");
+      toast.error("Iltimos, rasm tanlang");
+      return;
+    }
+
+    // Check if file is an image
+    if (!file.type.startsWith('image/')) {
+      toast.error("Iltimos, to'g'ri rasm fayli tanlang");
       return;
     }
 
     setLoading(true);
 
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      // Convert file to JPEG format
+      const jpegBlob = await convertToJpeg(file);
+      
+      // Create a new file with .jpeg extension
+      const jpegFile = new File([jpegBlob], `wallpaper-${Date.now()}.jpeg`, {
+        type: 'image/jpeg'
+      });
 
       const { error: uploadError } = await supabase.storage
         .from("wallpapers")
-        .upload(filePath, file);
+        .upload(jpegFile.name, jpegFile);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
         .from("wallpapers")
-        .getPublicUrl(filePath);
+        .getPublicUrl(jpegFile.name);
 
       const { error: insertError } = await supabase
         .from("wallpapers")
@@ -132,13 +222,14 @@ const Admin = () => {
 
       if (insertError) throw insertError;
 
-      toast.success("Wallpaper uploaded successfully!");
+      toast.success("Rasm muvaffaqiyatli yuklandi va gorizontal formatga o'zgartirildi!");
       setTitle("");
       setDescription("");
       setFile(null);
       fetchWallpapers();
     } catch (error: unknown) {
-      toast.error(error instanceof Error ? error.message : "Upload failed");
+      console.error('Upload error:', error);
+      toast.error(error instanceof Error ? error.message : "Yuklash muvaffaqiyatsiz tugadi");
     } finally {
       setLoading(false);
     }
@@ -163,10 +254,10 @@ const Admin = () => {
         .eq("id", id);
 
       if (error) throw error;
-      toast.success("Wallpaper deleted");
+      toast.success("Rasm o'chirildi");
       fetchWallpapers();
     } catch (error: unknown) {
-      toast.error(error instanceof Error ? error.message : "Delete failed");
+      toast.error(error instanceof Error ? error.message : "O'chirish muvaffaqiyatsiz tugadi");
     }
   };
 
@@ -183,7 +274,7 @@ const Admin = () => {
       <div className="container mx-auto max-w-6xl">
         <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 mb-8">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Admin Dashboard
+            Admin Panel
           </h1>
           <div className="flex flex-col sm:flex-row gap-2">
             <Button
@@ -192,7 +283,7 @@ const Admin = () => {
               className="gap-2 w-full sm:w-auto"
             >
               <LogOut className="w-4 h-4" />
-              Logout
+              Chiqish
             </Button>
             <Button
               variant="outline"
@@ -200,7 +291,7 @@ const Admin = () => {
               className="gap-2 w-full sm:w-auto"
             >
               <Home className="w-4 h-4" />
-              Back to Home
+              Bosh sahifaga
             </Button>
           </div>
         </div>
@@ -210,36 +301,36 @@ const Admin = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                 <Upload className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
-                Upload New Wallpaper
+                Yangi Rasm Yuklash
               </CardTitle>
               <CardDescription>
-                Add a beautiful new design to your collection
+                To'plamingizga chiroyli yangi dizayn qo'shing
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleUpload} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Title</Label>
+                  <Label htmlFor="title">Sarlavha</Label>
                   <Input
                     id="title"
-                    placeholder="Elegant Geometric Pattern"
+                    placeholder="Nafis Geometrik Naqsh"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description">Tavsif</Label>
                   <Textarea
                     id="description"
-                    placeholder="A stunning modern design featuring..."
+                    placeholder="Ajoyib zamonaviy dizayn..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="file">Image File</Label>
+                  <Label htmlFor="file">Rasm Fayli</Label>
                   <Input
                     id="file"
                     type="file"
@@ -256,12 +347,12 @@ const Admin = () => {
                   {loading ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Uploading...
+                      Yuklanmoqda...
                     </>
                   ) : (
                     <>
                       <Upload className="w-4 h-4 mr-2" />
-                      Upload Wallpaper
+                      Rasm Yuklash
                     </>
                   )}
                 </Button>
@@ -271,17 +362,17 @@ const Admin = () => {
 
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="text-lg sm:text-xl">Quick Stats</CardTitle>
-              <CardDescription>Your collection overview</CardDescription>
+              <CardTitle className="text-lg sm:text-xl">Tezkor statistika</CardTitle>
+              <CardDescription>To'plamingiz umumiy ko'rinishi</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3 sm:space-y-4">
                 <div className="p-4 sm:p-6 bg-secondary rounded-lg">
-                  <p className="text-xs sm:text-sm text-muted-foreground mb-1 sm:mb-2">Total Wallpapers</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1 sm:mb-2">Jami Rasmlar</p>
                   <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-accent">{wallpapers.length}</p>
                 </div>
                 <div className="p-4 sm:p-6 bg-secondary rounded-lg">
-                  <p className="text-xs sm:text-sm text-muted-foreground mb-1 sm:mb-2">Logged in as</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1 sm:mb-2">Kirish huquqi</p>
                   <p className="text-sm sm:text-lg font-medium truncate">admin</p>
                 </div>
               </div>
@@ -291,50 +382,50 @@ const Admin = () => {
 
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="text-lg sm:text-xl">Manage Wallpapers</CardTitle>
-            <CardDescription>View and manage your uploaded designs</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {wallpapers.length === 0 ? (
-              <p className="text-center text-muted-foreground py-6 sm:py-8 text-sm sm:text-base">
-                No wallpapers yet. Upload your first design above!
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {wallpapers.map((wallpaper) => (
-                  <div key={wallpaper.id} className="group relative overflow-hidden rounded-lg border border-border">
-                    <img
-                      src={wallpaper.image_url}
-                      alt={wallpaper.title}
-                      className="w-full aspect-[4/3] object-cover"
-                    />
-                    <div className="p-3 sm:p-4">
-                      <h3 className="font-semibold mb-1 text-sm sm:text-base">{wallpaper.title}</h3>
-                      <p 
-                        className="text-xs sm:text-sm text-muted-foreground overflow-hidden mb-2 sm:mb-3" 
-                        style={{
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical'
-                        }}
-                      >
-                        {wallpaper.description}
-                      </p>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="w-full gap-2 text-xs sm:text-sm"
-                        onClick={() => handleDelete(wallpaper.id, wallpaper.image_url)}
-                      >
-                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                        Delete
-                      </Button>
-                    </div>
+          <CardTitle className="text-lg sm:text-xl">Rasmlarni Boshqarish</CardTitle>
+          <CardDescription>Yuklangan dizaynlaringizni ko'rish va boshqarish</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {wallpapers.length === 0 ? (
+            <p className="text-center text-muted-foreground py-6 sm:py-8 text-sm sm:text-base">
+              Hali rasmlar yo'q. Yuqoridagi birinchi dizayningizni yuklang!
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {wallpapers.map((wallpaper) => (
+                <div key={wallpaper.id} className="group relative overflow-hidden rounded-lg border border-border">
+                  <img
+                    src={wallpaper.image_url}
+                    alt={wallpaper.title}
+                    className="w-full aspect-[4/3] object-cover"
+                  />
+                  <div className="p-3 sm:p-4">
+                    <h3 className="font-semibold mb-1 text-sm sm:text-base">{wallpaper.title}</h3>
+                    <p 
+                      className="text-xs sm:text-sm text-muted-foreground overflow-hidden mb-2 sm:mb-3" 
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical'
+                      }}
+                    >
+                      {wallpaper.description}
+                    </p>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="w-full gap-2 text-xs sm:text-sm"
+                      onClick={() => handleDelete(wallpaper.id, wallpaper.image_url)}
+                    >
+                      <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                      O'chirish
+                    </Button>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
         </Card>
       </div>
     </div>

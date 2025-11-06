@@ -173,10 +173,10 @@ Message: ${message}
         <div className="container mx-auto px-4 text-center">
           <h3 className="text-2xl font-bold mb-4">IdealHome</h3>
           <p className="text-primary-foreground/80 max-w-2xl mx-auto mb-6">
-            Transforming spaces with premium wallpaper designs. Every wall tells a story.
+            Premium rasm dizaynlari bilan makonni o'zgartirish. Har bir devorning o'z hikoyasi bor.
           </p>
           <p className="text-sm text-primary-foreground/60">
-            © 2024 IdealHome. All rights reserved.
+            © 2025 IdealHome. Barcha huquqlar himoyalangan.
           </p>
         </div>
       </footer>

@@ -45,8 +45,8 @@ export const WallpaperGallery = () => {
   if (wallpapers.length === 0) {
     return (
       <div className="text-center py-20">
-        <h3 className="text-2xl font-semibold mb-4">No wallpapers yet</h3>
-        <p className="text-muted-foreground">Check back soon for stunning designs!</p>
+        <h3 className="text-2xl font-semibold mb-4">Hali rasmlar yo'q</h3>
+        <p className="text-muted-foreground">Ajoyib dizaynlar uchun tez orada qayting!</p>
       </div>
     );
   }
@@ -56,10 +56,10 @@ export const WallpaperGallery = () => {
       <div className="container mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Our Collection
+            Bizning To'plam
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Handpicked designs that combine artistry with elegance
+            San'at va nafislikni uyg'unlashtirgan tanlangan dizaynlar
           </p>
         </div>
 

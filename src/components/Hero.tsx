@@ -14,25 +14,25 @@ export const Hero = () => {
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-5xl mx-auto animate-fade-in">
         <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
-          Transform Your Walls,
+          Devorlaringizni O'zgartiring,
           <br />
-          Transform Your Space
+          Makoningizni O'zgartiring
         </h1>
         <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Discover stunning wallpaper designs that bring luxury and elegance to every room
+          Har bir xonaga hashamat va nafislik olib keladigan ajoyib rasm dizaynlarini kashf eting
         </p>
         <div className="flex gap-4 justify-center flex-wrap">
           <a 
-            href="#gallery"
-            className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium hover:scale-105 transition-transform shadow-elegant"
+            href="#contact"
+            className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium hover:scale-105 transition-transform shadow-lg"
           >
-            Explore Collection
+            Biz bilan bog'lanish
           </a>
           <a 
             href="#gallery"
             className="px-8 py-4 bg-card/80 backdrop-blur-sm border-2 border-border text-foreground rounded-full font-medium hover:scale-105 transition-transform"
           >
-            View Gallery
+            Galereyani Ko'rish
           </a>
         </div>
       </div>

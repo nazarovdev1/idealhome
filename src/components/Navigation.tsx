@@ -40,7 +40,7 @@ export const Navigation = () => {
     // Clear localStorage
     localStorage.removeItem("adminAuthenticated");
     setIsAuthenticated(false);
-    toast.success("Logged out successfully");
+      toast.success("Muvaffaqiyatli chiqish!");
     navigate("/");
   };
 
@@ -70,7 +70,7 @@ export const Navigation = () => {
                   className="gap-1 sm:gap-2 px-2 sm:px-3 text-sm sm:text-base"
                 >
                   <Upload className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Dashboard</span>
+                  <span className="hidden sm:inline">Boshqaruv panel</span>
                   <span className="sm:hidden">Admin</span>
                 </Button>
                 <Button
@@ -79,16 +79,16 @@ export const Navigation = () => {
                   className="gap-1 sm:gap-2 px-2 sm:px-3 text-sm sm:text-base"
                 >
                   <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Logout</span>
+                  <span className="hidden sm:inline">Chiqish</span>
                 </Button>
               </>
             ) : (
               <Button
                 onClick={() => navigate("/auth")}
-                className="bg-accent text-accent-foreground hover:bg-accent/90 px-6 sm:px-3 text-sm sm:text-base"
+                className="bg-accent text-accent-foreground hover:bg-accent/90 px-2 sm:px-3 text-sm sm:text-base"
               >
-                <span className="hidden sm:inline">Admin Login</span>
-                <span className="sm:hidden">Login</span>
+                <span className="hidden sm:inline">Admin kirish</span>
+                <span className="sm:hidden">Kirish</span>
               </Button>
             )}
           </div>

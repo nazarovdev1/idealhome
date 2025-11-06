@@ -30,7 +30,7 @@ export const WallpaperCard = ({ title, description, imageUrl }: WallpaperCardPro
           <h3 className="text-primary-foreground text-2xl font-bold mb-2">{title}</h3>
           <p className="text-primary-foreground/90 mb-4">{description}</p>
           <button className="w-full py-3 bg-accent text-accent-foreground rounded-full font-medium hover:bg-accent/90 transition-colors">
-            View Details
+            Batafsil ko'rish
           </button>
         </div>
       </div>
