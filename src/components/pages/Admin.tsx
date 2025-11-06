@@ -16,7 +16,21 @@ interface Wallpaper {
   image_url: string;
 }
 
+/*************  ✨ Windsurf Command 🌟  *************/
+/**
+ * The Admin component is the main entry point for the admin dashboard.
+ * It displays a form for uploading new wallpapers, a list of the user's
+ * uploaded designs, and a button to log out.
+ *
+ * @returns {JSX.Element} The Admin dashboard component
+ */
 const Admin = () => {
+  /**
+   * The state variables to track whether the user is authenticated,
+   * whether the user is uploading a new wallpaper, the list of
+   * uploaded wallpapers, the title and description of the new
+   * wallpaper, and the file to be uploaded.
+   */
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -25,6 +39,10 @@ const Admin = () => {
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
+  /**
+   * A function to check if the user is authenticated. If the user is
+   * authenticated, it fetches the list of uploaded wallpapers.
+   */
   useEffect(() => {
     // Check both localStorage and Supabase session
     const checkAuth = async () => {
@@ -46,6 +64,10 @@ const Admin = () => {
     checkAuth();
   }, [navigate]);
 
+  /**
+   * A function to log the user out. It clears the localStorage and signs
+   * the user out of Supabase.
+   */
   const handleLogout = async () => {
     // Sign out from Supabase
     await supabase.auth.signOut();
@@ -57,6 +79,9 @@ const Admin = () => {
     navigate("/auth");
   };
 
+  /**
+   * A function to fetch the list of uploaded wallpapers.
+   */
   const fetchWallpapers = async () => {
     const { data } = await supabase
       .from("wallpapers")
@@ -65,6 +90,12 @@ const Admin = () => {
     setWallpapers(data || []);
   };
 
+  /**
+   * A function to handle the upload of a new wallpaper.
+   * It checks if the file is valid, and if so, it uploads the file
+   * to Supabase Storage and then inserts a new record into the
+   * wallpapers table with the title, description and image_url.
+   */
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
@@ -113,6 +144,12 @@ const Admin = () => {
     }
   };
 
+  /**
+   * A function to handle the deletion of a wallpaper.
+   * It checks if the file is valid, and if so, it deletes the file
+   * from Supabase Storage and then deletes the record from the
+   * wallpapers table.
+   */
   const handleDelete = async (id: string, imageUrl: string) => {
     try {
       const fileName = imageUrl.split("/").pop();
@@ -303,5 +340,6 @@ const Admin = () => {
     </div>
   );
 };
+/*******  c7795a9a-c930-4a11-badd-5dbfc8840649  *******/
 
 export default Admin;

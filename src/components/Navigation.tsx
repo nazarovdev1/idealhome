@@ -48,45 +48,47 @@ export const Navigation = () => {
     <nav 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
-          ? "bg-card/80 backdrop-blur-lg shadow-elegant border-b border-border" 
+          ? "bg-card/80 backdrop-blur-lg shadow-lg border-b border-border" 
           : "bg-transparent"
       }`}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
-          <a href="/" className="flex items-center gap-2 text-2xl font-bold">
-            <Home className="w-6 h-6 text-accent" />
+        <div className="flex items-center justify-between h-24 sm:h-20">
+          <a href="/" className="flex items-center gap-1 sm:gap-2 text-2xl sm:text-2xl lg:text-3xl font-bold">
+            <Home className="w-7 h-7 sm:w-6 sm:h-6 text-accent" />
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               IdealHome
             </span>
           </a>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {isAuthenticated ? (
               <>
                 <Button
                   onClick={() => navigate("/admin")}
                   variant="outline"
-                  className="gap-2"
+                  className="gap-1 sm:gap-2 px-2 sm:px-3 text-sm sm:text-base"
                 >
-                  <Upload className="w-4 h-4" />
-                  Dashboard
+                  <Upload className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Dashboard</span>
+                  <span className="sm:hidden">Admin</span>
                 </Button>
                 <Button
                   onClick={handleLogout}
                   variant="outline"
-                  className="gap-2"
+                  className="gap-1 sm:gap-2 px-2 sm:px-3 text-sm sm:text-base"
                 >
-                  <LogOut className="w-4 h-4" />
-                  Logout
+                  <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Logout</span>
                 </Button>
               </>
             ) : (
               <Button
                 onClick={() => navigate("/auth")}
-                className="bg-accent text-accent-foreground hover:bg-accent/90"
+                className="bg-accent text-accent-foreground hover:bg-accent/90 px-6 sm:px-3 text-sm sm:text-base"
               >
-                Admin Login
+                <span className="hidden sm:inline">Admin Login</span>
+                <span className="sm:hidden">Login</span>
               </Button>
             )}
           </div>

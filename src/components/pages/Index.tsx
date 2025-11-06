@@ -129,7 +129,7 @@ Message: ${message}
             inputMode="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            pattern="^\+998\d{9}$"
+            pattern="\+998[0-9]{9}"
             maxLength={13}
             title="Telefon raqam +998 va 9 xonali son ko'rinishida bo'lishi kerak, masalan: +998901234567"
             required
